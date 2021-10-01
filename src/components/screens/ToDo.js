@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { ReactComponent as DeleteIcon } from '../assets/delete.svg';
 import { ReactComponent as RevertIcon } from '../assets/revert.svg';
 import { ReactComponent as TickIcon } from '../assets/tick-green.svg';
@@ -10,36 +10,128 @@ class ToDo extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            items: [],
+            items: [
+                {
+                    id: 1,
+                    title: "Buy 1Kg Tomato",
+                },
+                {
+                    id: 2,
+                    title: "Buy 2Kg Onion",
+                },
+                {
+                    id: 3,
+                    title: "Visit Friend",
+                },
+                {
+                    id: 4,
+                    title: "Clean House",
+                },                
+            ],
             input: "",
-            finished: [],
+            finished: [
+                {
+                    id: 5,
+                    title: "Washing Clothes",
+                },
+                {
+                    id: 6,
+                    title: "Play Cricket",
+                },
+                {
+                    id: 7,
+                    title: "1Km Walking",
+                },
+                {
+                    id: 8,
+                    title: "Do Homework",
+                },
+            ],
+            idcount: 8,
         };
     }
     renderItems = () => {
-        return this.state.items.map((item) => {
-            console.log(this.state.items);
+        return this.state.items.map((item) => (
             <Li key={item.id}>
                 <FlexDiv >
-                    <Span></Span>
-                    <p>{item.title}</p>
+                    <Span onClick={() => {
+                            this.completedItems(item.id, item.title);
+                            this.removeItems(item.id);
+                        }
+                        }>
+                    </Span>
+                    <p>{item.id}, {item.title}</p>
                 </FlexDiv> 
-                <DeleteSvg />
+                <DeleteSvg onClick={() => this.removeItems(item.id) }/>
             </Li>
-        })
+        ))
     };
+
+    completedItems = (id, title) => {
+        let completeditemlist = {
+            id: id,
+            title: title,
+        }
+        this.setState({
+            finished: [...this.state.finished, completeditemlist],
+        });
+    }
+    revertItem = (id, title) => {
+        let reverteditemlist = {
+            id: id,
+            title: title,
+        }
+        this.setState({
+            items: [...this.state.items, reverteditemlist],
+        });
+    }
+
+    finishedItems = () => {
+        return this.state.finished.map((item) => (
+            <Li style={{color: "#0cc694"}} key={item.id}>
+                <FlexDiv>
+                    <Span style={{border: "1px solid #0cc694"}}>
+                        <TickSvg />
+                    </Span>
+                    <p>{item.id}, {item.title} </p>
+                </FlexDiv>
+                <small>
+                    <RevertSvg onClick={() => {
+                            this.revertItem(item.id, item.title);
+                            this.removeFinishedItems(item.id)
+                    }} />
+                    <DeleteSvg style={{marginLeft:"30px"}} onClick={() => this.removeFinishedItems(item.id)} />
+                </small>
+            </Li>
+        ))
+    }
+    
     updateItems = () => {
         let new_item = {
-            id: this.state.items.length,
+            id: this.state.idcount + 1,
             title: this.state.input,
         };
         if(this.state.input){
             this.setState({
                 items: [...this.state.items, new_item],
                 input: "",
+                idcount: this.state.idcount + 1,
             })
         }
+    };
+    removeItems = (id) => {
+        let removeditemlist =  this.state.items.filter((item) => item.id !== id);
+        this.setState({
+            items: removeditemlist,
+        });
     }
-
+    removeFinishedItems = (id) => {
+        let removeditemlist = this.state.finished.filter((item) => item.id !== id);
+        this.setState({
+            finished: removeditemlist,
+        });
+    }
+    
 
     render() {
         return (
@@ -49,93 +141,18 @@ class ToDo extends React.Component {
                     <div className="top">
                         <Heading3>Things to be done</Heading3>
                         <ul>
-                            <Li>
-                                <FlexDiv >
-                                    <Span></Span>
-                                    <p>Buy 1Kg Tomato</p>
-                                </FlexDiv> 
-                                <DeleteSvg />
-                            </Li>
-                            <Li>
-                                <FlexDiv >
-                                    <Span></Span>
-                                    <p>Buy 2Kg Onion</p>
-                                </FlexDiv> 
-                                <DeleteSvg />
-                            </Li>
-                            <Li>
-                                <FlexDiv >
-                                    <Span></Span>
-                                    <p>Visit Friend</p>
-                                </FlexDiv> 
-                                <DeleteSvg />
-                            </Li>
-                            <Li>
-                                <FlexDiv >
-                                    <Span></Span>
-                                    <p>Clean House</p>
-                                </FlexDiv> 
-                                <DeleteSvg />
-                            </Li>
                             {this.renderItems()}
                         </ul>
                     </div>
                     <FlexDiv>
                         <PLusSvg />
-                        <Input placeholder="Type new task..." value={this.state.input} onChange={(e) => {this.setState({input: e.target.value})}} />
+                        <Input placeholder="Type new task..." value={this.state.input} onChange={(e) => {this.setState({input: e.target.value})}} onKeyPress={(e) => e.key === 'Enter' && this.updateItems()} />
                         <Button onClick={this.updateItems}>Add New</Button>    
                     </FlexDiv>    
                     <div className="bottom">
                         <Heading3>Completed</Heading3>
                         <ul>
-                            <Li style={{color: "#0cc694"}}>
-                                <FlexDiv>
-                                    <Span style={{border: "1px solid #0cc694"}}>
-                                        <TickSvg />
-                                    </Span>
-                                    <p> Buy 1Kg Tomato </p>
-                                </FlexDiv>
-                                <small>
-                                    <RevertSvg />
-                                    <DeleteSvg style={{marginLeft:"30px"}} />
-                                </small>
-                            </Li>
-                            <Li style={{color: "#0cc694"}}>
-                                <FlexDiv>
-                                    <Span style={{border: "1px solid #0cc694"}}>
-                                        <TickSvg />
-                                    </Span>
-                                    <p> Buy 2Kg Onion </p>
-                                </FlexDiv>
-                                <small>
-                                    <RevertSvg />
-                                    <DeleteSvg style={{marginLeft:"30px"}} />
-                                </small>
-                            </Li>
-                            <Li style={{color: "#0cc694"}}>
-                                <FlexDiv>
-                                    <Span style={{border: "1px solid #0cc694"}}>
-                                        <TickSvg />
-                                    </Span>
-                                    <p> Visit Friend </p>
-                                </FlexDiv>
-                                <small>
-                                    <RevertSvg />
-                                    <DeleteSvg style={{marginLeft:"30px"}} />
-                                </small>
-                            </Li>
-                            <Li style={{color: "#0cc694"}}>
-                                <FlexDiv>
-                                    <Span style={{border: "1px solid #0cc694"}}>
-                                        <TickSvg />
-                                    </Span>
-                                    <p> Clean House </p>
-                                </FlexDiv>
-                                <small>
-                                    <RevertSvg />
-                                    <DeleteSvg style={{marginLeft:"30px"}} />
-                                </small>
-                            </Li>
+                            {this.finishedItems()}
                         </ul>
                     </div>
                 </Content>
@@ -147,9 +164,10 @@ class ToDo extends React.Component {
 const Content = styled.div`
     max-width: 1000px;
     margin: 0 auto;
-    border-left: 1px solid #f6f6f6;
-    border-right: 1px solid #f6f6f6;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
     padding: 0 200px;
+    background: #f6f6f6;
 `
 const Heading = styled.h1`
     text-align: center;
